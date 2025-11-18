@@ -1,0 +1,307 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf0 <!--\
+ALT ART GAMES - Single-file responsive portfolio\
+Instructions:\
+- Replace images/videos by updating the `SITE_DATA` object below or replacing file paths in /assets.\
+- This file is ready to drop into your GitHub Pages repo as index.html.\
+- The cover rotates through `coverPhotos` and dissolves between them.\
+- Tabs: Game Design | Animation | Art | UX / UI\
+- Hover overlay shows project text on desktop. On mobile tapping toggles the info under the image.\
+- Uses CSS variables for quick theming. Scroll animations use IntersectionObserver.\
+- To add new projects: update the corresponding array in SITE_DATA.\
+-->\
+\
+<!doctype html>\
+<html lang="en">\
+<head>\
+  <meta charset="utf-8">\
+  <meta name="viewport" content="width=device-width,initial-scale=1">\
+  <title>ALT ART GAMES \'97 Portfolio</title>\
+  <meta name="description" content="ALT ART GAMES portfolio \'97 game design, animation, UX/UI">\
+  <style>\
+    :root\{\
+      --bg:#0f0f10; --card:#0b0b0c; --muted:#9aa0a6; --accent:#ff6b6b; --glass: rgba(255,255,255,0.03);\
+      --maxW:1100px; --gap:18px; --radius:14px;\
+      --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;\
+    \}\
+    *\{box-sizing:border-box\}\
+    html,body\{height:100%\}\
+    body\{margin:0;font-family:var(--font-sans);background:linear-gradient(180deg,#070708 0%, #0f0f10 100%);color:#eee;-webkit-font-smoothing:antialiased\}\
+\
+    .wrap\{max-width:var(--maxW);margin:28px auto;padding:20px\}\
+    header\{display:flex;align-items:center;gap:16px\}\
+    .logo\{display:flex;flex-direction:column\}\
+    .brand\{font-weight:700;letter-spacing:1px;font-size:clamp(18px,2.4vw,28px)\}\
+    .tag\{color:var(--muted);font-size:12px\}\
+\
+    /* Cover */\
+    .cover\{position:relative;height:clamp(220px,36vw,420px);border-radius:var(--radius);overflow:hidden;margin-top:18px;background:#111\}\
+    .cover .slide\{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1s ease\}\
+    .cover .slide.show\{opacity:1\}\
+    .cover .overlay\{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.15),rgba(0,0,0,0.6));display:flex;align-items:flex-end;padding:24px\}\
+    .cover h1\{margin:0;font-size:clamp(22px,3.6vw,44px)\}\
+    .cover p\{margin:8px 0 0;color:var(--muted)\}\
+\
+    /* Tabs */\
+    .tabs\{display:flex;gap:10px;margin-top:20px\}\
+    .tab\{padding:10px 14px;border-radius:12px;background:var(--glass);cursor:pointer;color:var(--muted);font-weight:600\}\
+    .tab.active\{background:linear-gradient(90deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));color:#fff;box-shadow:0 6px 20px rgba(0,0,0,0.6)\}\
+\
+    /* Grid */\
+    .grid\{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);margin-top:18px\}\
+    .card\{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.18));padding:10px;border-radius:12px;position:relative;overflow:visible\}\
+    .card .media\{aspect-ratio:16/9;border-radius:10px;overflow:hidden;position:relative;background:#222\}\
+    .card img, .card video\{width:100%;height:100%;object-fit:cover;display:block\}\
+    .card .meta\{padding:10px\}\
+    .card h3\{margin:0 0 6px;font-size:16px\}\
+    .card p\{margin:0;color:var(--muted);font-size:13px\}\
+\
+    /* Hover overlay */\
+    .hover-overlay\{position:absolute;inset:10px;border-radius:10px;background:linear-gradient(180deg,rgba(0,0,0,0.2),rgba(0,0,0,0.6));display:flex;align-items:flex-end;padding:12px;opacity:0;transition:opacity .22s ease\}\
+    .card:hover .hover-overlay\{opacity:1\}\
+    .overlay-text\{color:#fff;font-weight:700\}\
+\
+    /* Mobile tap reveal */\
+    .mobile-reveal\{display:none;padding:10px;border-top:1px dashed rgba(255,255,255,0.04);background:transparent\}\
+\
+    /* Controls */\
+    .controls\{display:flex;gap:8px;align-items:center;margin-left:auto\}\
+\
+    /* Responsive */\
+    @media (max-width:1000px)\{.grid\{grid-template-columns:repeat(2,1fr)\}\}\
+    @media (max-width:680px)\{.wrap\{padding:12px\} .grid\{grid-template-columns:1fr\} .tabs\{overflow:auto\} .tab\{flex:0 0 auto\}\
+      .hover-overlay\{display:none\} .mobile-reveal\{display:block\}\
+    \}\
+\
+    /* Scroll-animate classes */\
+    .reveal\{opacity:0;transform:translateY(16px) scale(.98);transition:all .6s cubic-bezier(.2,.9,.3,1)\}\
+    .reveal.visible\{opacity:1;transform:none\}\
+\
+    /* Scale responsive elements */\
+    .scale\{transform-origin:center;transition:transform .28s ease\}\
+    .scale.sm\{transform:scale(.95)\}\
+\
+    footer\{margin:36px 0 60px;color:var(--muted);text-align:center\}\
+\
+    /* small utility */\
+    .row\{display:flex;gap:12px;align-items:center\}\
+    .muted\{color:var(--muted)\}\
+\
+  </style>\
+</head>\
+<body>\
+  <div class="wrap">\
+    <header>\
+      <div class="logo">\
+        <div class="brand">ALT ART GAMES</div>\
+        <div class="tag">Game Design \'b7 Animation \'b7 UX / UI</div>\
+      </div>\
+      <div class="controls">\
+        <div class="muted">Built with GitHub Pages</div>\
+      </div>\
+    </header>\
+\
+    <!-- COVER -->\
+    <section class="cover" id="cover">\
+      <!-- slides inserted by JS -->\
+      <div class="overlay"><div>\
+        <h1 id="cover-title">ALT ART GAMES</h1>\
+        <p id="cover-sub">Interactive experiences, motion, and playful UX</p>\
+      </div></div>\
+    </section>\
+\
+    <!-- TABS -->\
+    <nav class="tabs" role="tablist" aria-label="Portfolio Sections">\
+      <button class="tab active" data-tab="games">Game Design</button>\
+      <button class="tab" data-tab="animation">Animation</button>\
+      <button class="tab" data-tab="art">Art</button>\
+      <button class="tab" data-tab="uxui">UX / UI</button>\
+    </nav>\
+\
+    <!-- CONTENT AREAS -->\
+    <main>\
+      <section id="games" class="panel">\
+        <div class="grid" id="games-grid"></div>\
+      </section>\
+\
+      <section id="animation" class="panel" style="display:none">\
+        <div class="grid" id="animation-grid"></div>\
+      </section>\
+\
+      <section id="art" class="panel" style="display:none">\
+        <div class="grid" id="art-grid"></div>\
+      </section>\
+\
+      <section id="uxui" class="panel" style="display:none">\
+        <div class="grid" id="uxui-grid"></div>\
+      </section>\
+    </main>\
+\
+    <footer>\'a9 <span id="year"></span> ALT ART GAMES \'97 contact: <a href="mailto:you@example.com" style="color:inherit">you@example.com</a></footer>\
+  </div>\
+\
+  <script>\
+    /* ---------------------- SITE DATA - edit this ---------------------- */\
+    const SITE_DATA = \{\
+      coverPhotos: [\
+        \{src:'assets/cover1.jpg', title:'ALT ART GAMES', sub:'Interactive worlds & motion design'\},\
+        \{src:'assets/cover2.jpg', title:'Playful Systems', sub:'Game design, prototypes, and playable moments'\},\
+        \{src:'assets/cover3.jpg', title:'Motion & Story', sub:'Animation, documentary, behind-the-scenes'\}\
+      ],\
+\
+      games: [\
+        \{id:'g1',title:'FALLING CAT',type:'Playable',logo:'assets/g1-logo.png',bg:'assets/g1-bg.jpg',video:'assets/g1.mp4',desc:'A mobile casual game where a cat falls past floors avoiding pans.'\},\
+        \{id:'g2',title:'GLOW WALK',type:'Playable',logo:'assets/g2-logo.png',bg:'assets/g2-bg.jpg',video:'assets/g2.mp4',desc:'An atmospheric shooter where you tap to shoot emissive objects.'\},\
+        \{id:'g3',title:'CELL JUMP',type:'Playable',logo:'assets/g3-logo.png',bg:'assets/g3-bg.jpg',video:'assets/g3.mp4',desc:'Arcade jumper with trajectory aim and sticky surfaces.'\},\
+        \{id:'ux1',title:'UX: Menu Flow',type:'UX / UI',logo:'',bg:'assets/ux1-thumb.jpg',video:'',desc:'Redesign of menu flows for mobile game, includes wireframes and final screens.'\},\
+        \{id:'ux2',title:'UX: HUD Refresh',type:'UX / UI',logo:'',bg:'assets/ux2-thumb.jpg',video:'',desc:'HUD redesign and feedback system for a rhythm game.'\}\
+      ],\
+\
+      animation: [\
+        \{id:'a1',title:'UN-CHARTING',subtitle:'From concept to screen \'97 the creative process',thumb:'assets/un-charting.jpg',desc:'180\'b0 3D animation documentary',video:'assets/un-charting.mp4'\},\
+        \{id:'a2',title:'Design Solutions - 3D Motion Design',subtitle:'Motion design case study',thumb:'assets/design-solutions.jpg',desc:'Collection of project stills and clips',video:'assets/design-solutions.mp4'\}\
+      ],\
+\
+      uxui: [\
+        \{id:'u1',title:'Onboard Flow',thumb:'assets/ux-1.jpg',desc:'Short description about the onboarding redesign.',refs:['assets/ux-ref1.jpg','assets/ux-ref2.jpg'],finals:['assets/ux-final1.jpg','assets/ux-final2.jpg']\},\
+        \{id:'u2',title:'Inventory UI',thumb:'assets/ux-2.jpg',desc:'Inventory interaction design and micro-animation details.',refs:['assets/ux-ref3.jpg'],finals:['assets/ux-final3.jpg']\}\
+      ]\
+    \};\
+    /* ---------------------- /SITE DATA ---------------------- */\
+\
+    // helper to create DOM\
+    function el(tag,cls,attrs)\{const e=document.createElement(tag); if(cls)e.className=cls; if(attrs)Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v)); return e\}\
+\
+    // cover slideshow\
+    (function initCover()\{\
+      const container=document.getElementById('cover');\
+      SITE_DATA.coverPhotos.forEach((c,idx)=>\{\
+        const s=el('div','slide'); s.style.backgroundImage=`url($\{c.src\})`;\
+        if(idx===0) s.classList.add('show');\
+        container.insertBefore(s,container.firstChild);\
+      \});\
+      let i=0; const slides=container.querySelectorAll('.slide');\
+      const title=document.getElementById('cover-title'), sub=document.getElementById('cover-sub');\
+      title.textContent=SITE_DATA.coverPhotos[0].title; sub.textContent=SITE_DATA.coverPhotos[0].sub;\
+      setInterval(()=>\{\
+        slides[i].classList.remove('show');\
+        i=(i+1)%slides.length;\
+        slides[i].classList.add('show');\
+        title.textContent=SITE_DATA.coverPhotos[i].title; sub.textContent=SITE_DATA.coverPhotos[i].sub;\
+      \},4000);\
+    \})();\
+\
+    // populate grids\
+    function makeGameCard(p)\{\
+      const c=el('article','card reveal');\
+      const media=el('div','media');\
+      // video if present\
+      if(p.video)\{\
+        const v=document.createElement('video'); v.src=p.video; v.setAttribute('playsinline',''); v.setAttribute('muted',''); v.setAttribute('preload','metadata'); v.loop=true; v.muted=true; v.autoplay=true; v.controls=false; v.poster=p.bg; media.appendChild(v);\
+      \} else \{\
+        const img=el('img'); img.src=p.bg; media.appendChild(img);\
+      \}\
+      c.appendChild(media);\
+\
+      // hover overlay\
+      const hov=el('div','hover-overlay'); const t=el('div','overlay-text'); t.textContent=p.title + ' \'97 ' + p.type; hov.appendChild(t); c.appendChild(hov);\
+\
+      const meta=el('div','meta'); meta.innerHTML=`<h3>$\{p.title\}</h3><p>$\{p.desc\}</p>`;\
+      c.appendChild(meta);\
+\
+      // mobile reveal\
+      const mob=el('div','mobile-reveal'); mob.innerHTML=`<strong>$\{p.title\}</strong><p class="muted">$\{p.desc\}</p>`;\
+      if(p.video) mob.innerHTML += `<p><small>Video:</small> <a href="$\{p.video\}" target="_blank">open</a></p>`;\
+      c.appendChild(mob);\
+\
+      // toggle on tap for mobile\
+      c.addEventListener('click',(e)=>\{\
+        if(window.innerWidth<=680)\{ mob.style.display = (mob.style.display==='block')? 'none':'block'; mob.scrollIntoView(\{behavior:'smooth',block:'center'\}); \}\
+      \});\
+\
+      return c;\
+    \}\
+\
+    function makeAnimationCard(p)\{\
+      const c=el('article','card reveal');\
+      const media=el('div','media');\
+      const img=el('img'); img.src=p.thumb; media.appendChild(img);\
+      c.appendChild(media);\
+      const hov=el('div','hover-overlay'); const t=el('div','overlay-text'); t.textContent=p.title; hov.appendChild(t); c.appendChild(hov);\
+      const meta=el('div','meta'); meta.innerHTML=`<h3>$\{p.title\}</h3><p>$\{p.subtitle || ''\}</p>`;\
+      c.appendChild(meta);\
+      const mob=el('div','mobile-reveal'); mob.innerHTML=`<strong>$\{p.title\}</strong><p class="muted">$\{p.desc\}</p>`;\
+      if(p.video) mob.innerHTML += `<p><small>Video:</small> <a href="$\{p.video\}" target="_blank">open</a></p>`;\
+      c.appendChild(mob);\
+      c.addEventListener('click',()=>\{ if(window.innerWidth<=680)\{ mob.style.display = (mob.style.display==='block')? 'none':'block' \} \});\
+      return c;\
+    \}\
+\
+    function makeUXCard(p)\{\
+      const c=el('article','card reveal');\
+      const media=el('div','media'); const img=el('img'); img.src=p.thumb; media.appendChild(img); c.appendChild(media);\
+      const meta=el('div','meta'); meta.innerHTML=`<h3>$\{p.title\}</h3><p class="muted">$\{p.desc\}</p>`; c.appendChild(meta);\
+      // mobile reveal with refs + finals\
+      const mob=el('div','mobile-reveal'); mob.innerHTML=`<strong>$\{p.title\}</strong><p class="muted">$\{p.desc\}</p>`;\
+      if(p.refs && p.refs.length) mob.innerHTML+=`<p><small>References:</small> $\{p.refs.map(r=>`<a href="$\{r\}" target="_blank">ref</a>`).join(' ')\}</p>`;\
+      if(p.finals && p.finals.length) mob.innerHTML+=`<p><small>Finals:</small> $\{p.finals.map(r=>`<a href="$\{r\}" target="_blank">final</a>`).join(' ')\}</p>`;\
+      c.appendChild(mob);\
+      c.addEventListener('click',()=>\{ if(window.innerWidth<=680)\{ mob.style.display = (mob.style.display==='block')? 'none':'block' \} \});\
+      return c;\
+    \}\
+\
+    function populate()\{\
+      const gamesGrid=document.getElementById('games-grid'); gamesGrid.innerHTML='';\
+      SITE_DATA.games.forEach(p=>gamesGrid.appendChild(makeGameCard(p)));\
+      const animGrid=document.getElementById('animation-grid'); animGrid.innerHTML='';\
+      SITE_DATA.animation.forEach(p=>animGrid.appendChild(makeAnimationCard(p)));\
+      const uxGrid=document.getElementById('uxui-grid'); uxGrid.innerHTML='';\
+      SITE_DATA.uxui.forEach(p=>uxGrid.appendChild(makeUXCard(p)));\
+      document.getElementById('year').textContent = new Date().getFullYear();\
+    \}\
+    populate();\
+\
+    // tabs logic\
+    document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>\{\
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));\
+      b.classList.add('active');\
+      const target=b.dataset.tab; document.querySelectorAll('.panel').forEach(p=>p.style.display='none');\
+      document.getElementById(target).style.display='block';\
+      // small visual scale effect\
+      document.getElementById(target).querySelectorAll('.card').forEach(c=>\{ c.classList.add('scale','sm'); setTimeout(()=>c.classList.remove('sm'),120); \});\
+      // re-run reveal observer after tab change\
+      setTimeout(()=>revealObserverPoke(),50);\
+    \}));\
+\
+    // simple reveal on scroll\
+    const revealObserver = new IntersectionObserver((entries)=>\{\
+      entries.forEach(e=>\{ if(e.isIntersecting) e.target.classList.add('visible'); \});\
+    \},\{threshold:0.12\});\
+    function revealObserverPoke()\{ document.querySelectorAll('.reveal').forEach(n=>revealObserver.observe(n)); \}\
+    revealObserverPoke();\
+\
+    // small enhancement: autoplay muted videos only when in view\
+    const vidObserver = new IntersectionObserver((ents)=>\{\
+      ents.forEach(e=>\{\
+        const v=e.target.querySelector('video'); if(!v) return;\
+        if(e.isIntersecting) \{ v.play().catch(()=>\{\}); \} else \{ v.pause(); \}\
+      \});\
+    \},\{threshold:0.4\});\
+    document.querySelectorAll('.card').forEach(c=>vidObserver.observe(c));\
+\
+    // Allow easy programmatic updates: Expose SITE_DATA to window for quick edits in console\
+    window.SITE_DATA = SITE_DATA;\
+\
+    // Accessibility small fixes\
+    document.addEventListener('keydown', (e)=>\{ if(e.key==='Escape') document.activeElement.blur(); \});\
+\
+  </script>\
+</body>\
+</html>\
+}
